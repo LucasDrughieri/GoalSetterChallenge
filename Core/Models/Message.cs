@@ -1,4 +1,5 @@
 ﻿using Core.Enums;
+using System.Text.Json.Serialization;
 
 namespace Core.Models
 {
@@ -6,6 +7,7 @@ namespace Core.Models
     {
         public string Description { get; }
 
+        [JsonIgnore]
         public MessageType Type { get; set; }
 
         public Message(string description, MessageType type)
@@ -13,5 +15,7 @@ namespace Core.Models
             Description = description;
             Type = type;
         }
+
+        public string MessageType => Type.ToString();
     }
 }

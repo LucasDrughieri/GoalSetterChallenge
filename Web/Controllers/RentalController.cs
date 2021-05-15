@@ -6,8 +6,9 @@ using Web.Filters;
 
 namespace Web.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
-    public class RentalController : Controller
+    public class RentalController : ControllerBase
     {
         private readonly IRentalService _rentalService;
 
