@@ -5,6 +5,7 @@ using Core.Interfaces.Services;
 using Core.Models;
 using Core.Models.Request;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 
@@ -13,34 +14,42 @@ namespace Service
     public class RentalService : IRentalService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<RentalService> _logger;
 
-        public RentalService(IUnitOfWork unitOfWork)
+        public RentalService(IUnitOfWork unitOfWork, ILogger<RentalService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public Response Add(CreateRentalRequestModel request)
         {
             var response = new Response();
 
-            DateUtils.ValidateRangeDates(response, request.StartDate, request.EndDate);
-
-            var vehicle = ValidateVehicle(request, response);
-
-            ValidateClient(request, response);
-
-            if (response.HasErrors()) return response;
-
-            var vehicleAvailables = _unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
-
-            if (!vehicleAvailables.Any(x => x.Id == request.VehicleId))
-            {
-                response.AddError("Vehicle is not available");
-                return response;
-            }
-
             try
             {
+                _logger.LogInformation("Starting request validation");
+
+                DateUtils.ValidateRangeDates(response, request.StartDate, request.EndDate);
+
+                var vehicle = ValidateVehicle(request, response);
+
+                ValidateClient(request, response);
+
+                if (response.HasErrors()) return response;
+
+                _logger.LogInformation("Request validated success");
+
+                _logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
+
+                var vehicleAvailables = _unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
+
+                if (!vehicleAvailables.Any(x => x.Id == request.VehicleId))
+                {
+                    response.AddError("Vehicle is not available");
+                    return response;
+                }
+
                 var totalDays = request.EndDate.Value.Subtract(request.StartDate.Value).TotalDays;
 
                 var rental = new Rental
@@ -53,6 +62,8 @@ namespace Service
                     Status = RentalStatus.Reserved
                 };
 
+                _logger.LogInformation("Calling rental repository to save new rental");
+
                 _unitOfWork.RentalRepository.Add(rental);
                 _unitOfWork.Save();
 
@@ -60,7 +71,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                response.AddError("An error has ocurred");
+                ExceptionUtils.HandleGeneralError(response, _logger, e);
             }
 
             return response;
@@ -69,6 +80,8 @@ namespace Service
         public Response Cancel(int id)
         {
             var response = new Response();
+
+            _logger.LogInformation($"Calling rental repository to find rental with id {id}");
 
             var entity = _unitOfWork.RentalRepository.Find(id);
 
@@ -81,6 +94,9 @@ namespace Service
             try
             {
                 entity.Status = RentalStatus.Cancelled;
+
+                _logger.LogInformation("Calling rental repository to cancel rental with id {id}");
+
                 _unitOfWork.RentalRepository.Update(entity);
                 _unitOfWork.Save();
 
@@ -88,7 +104,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                response.AddError("An error has ocurred");
+                ExceptionUtils.HandleGeneralError(response, _logger, e);
             }
 
             return response;

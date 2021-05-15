@@ -1,6 +1,7 @@
 ﻿using Core.Interfaces.Services;
 using Core.Models.Request;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Web.Extensions;
 using Web.Filters;
 
@@ -11,16 +12,20 @@ namespace Web.Controllers
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
-        
-        public ClientController(IClientService clientService)
+        private readonly ILogger<ClientController> _logger;
+
+        public ClientController(IClientService clientService, ILogger<ClientController> logger)
         {
             _clientService = clientService;
+            _logger = logger;
         }
 
         [HttpPost]
         [ValidateBodyActionFilter]
         public IActionResult Post([FromBody]ClientRequestModel request)
         {
+            _logger.LogInformation($"POST /api/client reach with body: {request}");
+
             var response = _clientService.Add(request);
 
             return response.CreateResponse(this);
@@ -29,6 +34,8 @@ namespace Web.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            _logger.LogInformation($"DELETE /api/client/{id} reach");
+
             var response = _clientService.Delete(id);
 
             return response.CreateResponse(this);

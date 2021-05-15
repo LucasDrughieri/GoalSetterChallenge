@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Web.Utils
+namespace Core.Configuration
 {
     public class AppException : Exception
     {

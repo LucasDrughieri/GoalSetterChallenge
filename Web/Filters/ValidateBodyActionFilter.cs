@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Web.Utils;
+﻿using Core.Configuration;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Web.Filters
 {

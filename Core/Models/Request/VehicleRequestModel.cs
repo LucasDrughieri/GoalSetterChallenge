@@ -8,5 +8,10 @@ namespace Core.Models.Request
         public int Year { get; set; }
 
         public double? PricePerDay { get; set; }
+
+        public override string ToString()
+        {
+            return $"Brand: {Brand}, Year: {Year}, PricePerDay: {PricePerDay}";
+        }
     }
 }
