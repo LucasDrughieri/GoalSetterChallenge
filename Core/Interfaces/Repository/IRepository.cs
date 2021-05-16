@@ -1,6 +1,6 @@
 ﻿namespace Core.Interfaces.Repository
 {
-    public interface IUnitOfWork
+    public interface IRepository
     {
         IClientRepository ClientRepository { get; }
         IVehicleRepository VehicleRepository { get; }

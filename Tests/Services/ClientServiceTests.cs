@@ -14,7 +14,7 @@ namespace Tests.Services
 {
     public class Tests
     {
-        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IRepository> unitOfWorkMock;
         private Mock<ILogger<ClientService>> loggerMock;
         private Mock<IClientRepository> clientRepositoryMock;
 
@@ -23,7 +23,7 @@ namespace Tests.Services
         [SetUp]
         public void Setup()
         {
-            unitOfWorkMock = new Mock<IUnitOfWork>();
+            unitOfWorkMock = new Mock<IRepository>();
             loggerMock = new Mock<ILogger<ClientService>>();
             clientRepositoryMock = new Mock<IClientRepository>();
 

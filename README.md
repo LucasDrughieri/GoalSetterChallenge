@@ -16,9 +16,15 @@
 ## How to run
 
 * cd Web/
+* Go to appsettings.json and change "LUCAS2\\SQLEXPRESS" for your connection
+
+"ConnectionStrings": {
+    "Default": "Server=LUCAS2\\SQLEXPRESS;Database=GoalSetterChallenge;Trusted_Connection=True"
+},
+
 * Run dotnet run
 
 ## Documentation
 
 * Swagger documentation on route -> /swagger/index.html
-* There is a postman collection 'GoalSetter.postman_collection' on solution root
+* There is a postman collection 'GoalSetter.postman_collection' on root's solution 

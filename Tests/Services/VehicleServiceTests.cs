@@ -17,7 +17,7 @@ namespace Tests.Services
 {
     public class VehicleServiceTests
     {
-        private Mock<IUnitOfWork> unitOfWorkMock;
+        private Mock<IRepository> unitOfWorkMock;
         private Mock<ILogger<VehicleService>> loggerMock;
         private Mock<IVehicleRepository> vehicleRepositoryMock;
         private Mock<IRentalRepository> rentalRepositoryMock;
@@ -27,7 +27,7 @@ namespace Tests.Services
         [SetUp]
         public void Setup()
         {
-            unitOfWorkMock = new Mock<IUnitOfWork>();
+            unitOfWorkMock = new Mock<IRepository>();
             loggerMock = new Mock<ILogger<VehicleService>>();
             vehicleRepositoryMock = new Mock<IVehicleRepository>();
             rentalRepositoryMock = new Mock<IRentalRepository>();

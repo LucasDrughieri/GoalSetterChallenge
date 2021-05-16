@@ -15,15 +15,19 @@ namespace Service
     /// </summary>
     public class RentalService : IRentalService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IRepository unitOfWork;
         private readonly ILogger<RentalService> logger;
 
-        public RentalService(IUnitOfWork unitOfWork, ILogger<RentalService> logger)
+        public RentalService(IRepository unitOfWork, ILogger<RentalService> logger)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Create new rental
+        /// </summary>
+        /// <param name="request"></param>
         public Response Add(CreateRentalRequestModel request)
         {
             var response = new Response();
@@ -79,6 +83,11 @@ namespace Service
             return response;
         }
 
+        /// <summary>
+        /// Cancel a rental by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public Response Cancel(int id)
         {
             var response = new Response();
@@ -112,6 +121,11 @@ namespace Service
             return response;
         }
 
+        /// <summary>
+        /// Client validations
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="response"></param>
         private void ValidateClient(CreateRentalRequestModel request, Response response)
         {
             if (!request.ClientId.HasValue)
@@ -126,6 +140,11 @@ namespace Service
             }
         }
 
+        /// <summary>
+        /// Vehicle validations
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="response"></param>
         private Vehicle ValidateVehicle(CreateRentalRequestModel request, Response response)
         {
             if (!request.VehicleId.HasValue)

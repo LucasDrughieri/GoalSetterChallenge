@@ -18,15 +18,19 @@ namespace Service
     /// </summary>
     public class VehicleService : IVehicleService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IRepository unitOfWork;
         private readonly ILogger<VehicleService> logger;
 
-        public VehicleService(IUnitOfWork unitOfWork, ILogger<VehicleService> logger)
+        public VehicleService(IRepository unitOfWork, ILogger<VehicleService> logger)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Logical delete of a vehicle by id
+        /// </summary>
+        /// <param name="id"></param>
         public Response Delete(int id)
         {
             var response = new Response();
@@ -56,6 +60,10 @@ namespace Service
             return response;
         }
 
+        /// <summary>
+        /// Create new vehicle
+        /// </summary>
+        /// <param name="request"></param>
         public Response Add(VehicleRequestModel request)
         {
             var response = new Response();
@@ -88,6 +96,10 @@ namespace Service
             return response;
         }
 
+        /// <summary>
+        /// Get available vehicles by range date
+        /// </summary>
+        /// <param name="request"></param>
         public Response<IList<VehicleAvailableResponseModel>> GetAvailables(SearchAvailableVehiclesRequestModel request)
         {
             var response = new Response<IList<VehicleAvailableResponseModel>>();

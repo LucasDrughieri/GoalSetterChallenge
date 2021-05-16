@@ -14,15 +14,19 @@ namespace Service
     /// </summary>
     public class ClientService : IClientService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IRepository unitOfWork;
         private readonly ILogger<ClientService> logger;
 
-        public ClientService(IUnitOfWork unitOfWork, ILogger<ClientService> logger)
+        public ClientService(IRepository unitOfWork, ILogger<ClientService> logger)
         {
             this.unitOfWork = unitOfWork;
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Create a new client
+        /// </summary>
+        /// <param name="request"></param>
         public Response Add(ClientRequestModel request)
         {
             var response = new Response();
@@ -55,6 +59,10 @@ namespace Service
             return response;
         }
 
+        /// <summary>
+        /// Logical delete of a client by id
+        /// </summary>
+        /// <param name="id"></param>
         public Response Delete(int id)
         {
             var response = new Response();
