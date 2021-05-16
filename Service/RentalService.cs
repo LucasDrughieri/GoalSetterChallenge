@@ -7,7 +7,6 @@ using Core.Models.Request;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 
 namespace Service
 {
@@ -42,11 +41,11 @@ namespace Service
 
                 _logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
 
-                var vehicleAvailables = _unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
+                var isVehicleAvailable = _unitOfWork.RentalRepository.VerifyIfVehicleIsAvailableByRangeDates(request.VehicleId.Value, request.StartDate.Value, request.EndDate.Value);
 
-                if (!vehicleAvailables.Any(x => x.Id == request.VehicleId))
+                if (!isVehicleAvailable)
                 {
-                    response.AddError("Vehicle is not available");
+                    response.AddError(Constants.VEHICLE_NOT_AVAILABLE, "Vehicle is not available");
                     return response;
                 }
 
@@ -67,7 +66,7 @@ namespace Service
                 _unitOfWork.RentalRepository.Add(rental);
                 _unitOfWork.Save();
 
-                response.AddSuccess("A car was reserved succesfully");
+                response.AddSuccess(Constants.RENTAL_SAVED, "A vehicle was reserved succesfully");
             }
             catch (Exception e)
             {
@@ -87,7 +86,7 @@ namespace Service
 
             if(entity == null)
             {
-                response.AddError("Rental not found");
+                response.AddError(Constants.RENTAL_NOT_FOUND, "Rental not found");
                 return response;
             }
 
@@ -100,7 +99,7 @@ namespace Service
                 _unitOfWork.RentalRepository.Update(entity);
                 _unitOfWork.Save();
 
-                response.AddSuccess("The rental car was succesfully cancelled");
+                response.AddSuccess(Constants.RENTAL_CANCELLED, "The rental car was succesfully cancelled");
             }
             catch (Exception e)
             {
@@ -114,13 +113,13 @@ namespace Service
         {
             if (!request.ClientId.HasValue)
             {
-                response.AddError("The field ClientId is required");
+                response.AddError(Constants.CLIENTID_EMPTY, "The field ClientId is required");
             }
             else
             {
                 var client = _unitOfWork.ClientRepository.Find(request.ClientId.Value);
 
-                if (client == null || !client.Active) response.AddError("Client not found");
+                if (client == null || !client.Active) response.AddError(Constants.CLIENT_NOT_FOUND, "Client not found");
             }
         }
 
@@ -128,14 +127,14 @@ namespace Service
         {
             if (!request.VehicleId.HasValue)
             {
-                response.AddError("The field VehicleId is required");
+                response.AddError(Constants.VEHICLEID_EMPTY, "The field VehicleId is required");
                 return null;
             }
             else
             {
                 var vehicle = _unitOfWork.VehicleRepository.Find(request.VehicleId.Value);
 
-                if (vehicle == null || !vehicle.Active) response.AddError("Vehicle not found");
+                if (vehicle == null || !vehicle.Active) response.AddError(Constants.VEHICLE_NOT_FOUND, "Vehicle not found");
 
                 return vehicle;
             }

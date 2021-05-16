@@ -26,8 +26,8 @@ namespace Service
 
             _logger.LogInformation("Starting request validation");
 
-            if (string.IsNullOrWhiteSpace(request.Name)) response.AddError("The field name is required");
-            if (string.IsNullOrWhiteSpace(request.Phone)) response.AddError("The field phone is required");
+            if (string.IsNullOrWhiteSpace(request.Name)) response.AddError(Constants.NAME_EMPTY, "The field name is required");
+            if (string.IsNullOrWhiteSpace(request.Phone)) response.AddError(Constants.PHONE_EMPTY, "The field phone is required");
 
             if (response.HasErrors()) return response;
 
@@ -42,7 +42,7 @@ namespace Service
                 _unitOfWork.ClientRepository.Add(domain);
                 _unitOfWork.Save();
 
-                response.AddSuccess("Client added succesfully");
+                response.AddSuccess(Constants.CLIENT_SAVED, "Client added succesfully");
             }
             catch (Exception e)
             {
@@ -62,7 +62,7 @@ namespace Service
 
             if (entity == null)
             {
-                response.AddError("Client not found");
+                response.AddError(Constants.CLIENT_NOT_FOUND, "Client not found");
                 return response;
             }
 
@@ -73,7 +73,7 @@ namespace Service
                 _unitOfWork.ClientRepository.Delete(entity);
                 _unitOfWork.Save();
 
-                response.AddSuccess("Client removed succesfully");
+                response.AddSuccess(Constants.CLIENT_DELETED, "Client removed succesfully");
             }
             catch (Exception e)
             {

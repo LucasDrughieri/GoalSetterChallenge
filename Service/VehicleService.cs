@@ -34,7 +34,7 @@ namespace Service
 
             if(entity == null)
             {
-                response.AddError("Vehicle not found");
+                response.AddError(Constants.VEHICLE_NOT_FOUND, "Vehicle not found");
                 return response;
             }
 
@@ -43,7 +43,7 @@ namespace Service
                 _unitOfWork.VehicleRepository.Delete(entity);
                 _unitOfWork.Save();
 
-                response.AddSuccess("Vehicle removed succesfully");
+                response.AddSuccess(Constants.VEHICLE_DELETED, "Vehicle removed succesfully");
             }
             catch (Exception e)
             {
@@ -59,8 +59,8 @@ namespace Service
 
             _logger.LogInformation("Starting request validation");
 
-            if (string.IsNullOrWhiteSpace(request.Brand)) response.AddError("The field brand is required");
-            if(!request.PricePerDay.HasValue || request.PricePerDay <= 0) response.AddError("The field pricePerDay is required");
+            if (string.IsNullOrWhiteSpace(request.Brand)) response.AddError(Constants.BRAND_EMPTY, "The field brand is required");
+            if(!request.PricePerDay.HasValue || request.PricePerDay <= 0) response.AddError(Constants.PRICE_PER_DAY_INVALID, "The field pricePerDay is required");
 
             if (response.HasErrors()) return response;
 
@@ -75,7 +75,7 @@ namespace Service
                 _unitOfWork.VehicleRepository.Add(domain);
                 _unitOfWork.Save();
 
-                response.AddSuccess("Vehicle added succesfully");
+                response.AddSuccess(Constants.VEHICLE_SAVED, "Vehicle added succesfully");
             }
             catch (Exception e)
             {
@@ -103,7 +103,7 @@ namespace Service
 
             response.Data = vehicleAvailables.Select(x => new VehicleAvailableResponseModel { Id = x.Id, Brand = x.Brand, PricePerDay = x.PricePerDay, Year = x.Year }).ToList();
 
-            if (!response.Data.Any()) response.AddWarning("No vehicles availables for selected dates");
+            if (!response.Data.Any()) response.AddWarning(Constants.NO_VEHICLE_AVAILABLES, "No vehicles availables for selected dates");
 
             return response;
         }

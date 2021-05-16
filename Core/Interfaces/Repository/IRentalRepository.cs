@@ -13,5 +13,7 @@ namespace Core.Interfaces.Repository
         void Update(Rental rental);
 
         Rental Find(int id);
+
+        bool VerifyIfVehicleIsAvailableByRangeDates(int id, DateTime startDate, DateTime endDate);
     }
 }

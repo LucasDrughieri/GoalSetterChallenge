@@ -41,5 +41,10 @@ namespace Repository
 
             return _appDbContext.Vehicles.Where(x => x.Active && !vehicleIdRented.Contains(x.Id)).ToList();
         }
+
+        public bool VerifyIfVehicleIsAvailableByRangeDates(int id, DateTime startDate, DateTime endDate)
+        {
+            return !_appDbContext.Rentals.Any(x => x.VehicleId == id && x.Status == RentalStatus.Reserved && ((startDate >= x.StartDate && startDate <= x.EndDate) || (endDate >= x.StartDate && endDate <= x.EndDate)));
+        }
     }
 }

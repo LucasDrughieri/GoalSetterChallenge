@@ -38,19 +38,19 @@ namespace Core.Models
                 Messages.Add(message);
         }
 
-        public void AddError(string message)
+        public void AddError(string code, string message)
         {
-            Messages.Add(new Message(message, MessageType.Error));
+            Messages.Add(new Message(code, message, MessageType.Error));
         }
 
-        public void AddWarning(string message)
+        public void AddWarning(string code, string message)
         {
-            Messages.Add(new Message(message, MessageType.Warning));
+            Messages.Add(new Message(code, message, MessageType.Warning));
         }
 
-        public void AddSuccess(string message)
+        public void AddSuccess(string code, string message)
         {
-            Messages.Add(new Message(message, MessageType.Success));
+            Messages.Add(new Message(code, message, MessageType.Success));
         }
     }
 }
