@@ -1,4 +1,5 @@
 ﻿using Core.Interfaces.Services;
+using Core.Models;
 using Core.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,8 @@ namespace Web.Controllers
 
         [HttpPost]
         [ValidateBodyActionFilter]
+        [ProducesResponseType(typeof(Response), 200)]
+        [ProducesResponseType(typeof(Response), 400)]
         public IActionResult Post([FromBody]ClientRequestModel request)
         {
             _logger.LogInformation($"POST /api/client reach with body: {request}");
@@ -32,6 +35,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(Response), 200)]
+        [ProducesResponseType(typeof(Response), 400)]
         public IActionResult Delete(int id)
         {
             _logger.LogInformation($"DELETE /api/client/{id} reach");

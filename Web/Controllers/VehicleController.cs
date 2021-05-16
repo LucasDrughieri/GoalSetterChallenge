@@ -1,7 +1,10 @@
 ﻿using Core.Interfaces.Services;
+using Core.Models;
 using Core.Models.Request;
+using Core.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using Web.Extensions;
 using Web.Filters;
 
@@ -22,7 +25,9 @@ namespace Web.Controllers
 
         [HttpPost]
         [ValidateBodyActionFilter]
-        public IActionResult Post([FromBody]VehicleRequestModel request)
+        [ProducesResponseType(typeof(Response), 200)]
+        [ProducesResponseType(typeof(Response), 400)]
+        public IActionResult Post([FromBody] VehicleRequestModel request)
         {
             _logger.LogInformation($"POST /api/vehicle reach with body: {request}");
 
@@ -32,6 +37,8 @@ namespace Web.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(Response), 200)]
+        [ProducesResponseType(typeof(Response), 400)]
         public IActionResult Delete(int id)
         {
             _logger.LogInformation($"DELETE /api/vehicle/{id} reach");
@@ -42,6 +49,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("availables")]
+        [ProducesResponseType(typeof(Response<IList<VehicleAvailableResponseModel>>), 200)]
         public IActionResult Availables([FromQuery] SearchAvailableVehiclesRequestModel request)
         {
             _logger.LogInformation($"GET /api/vehicle reach with query params: {request}");
