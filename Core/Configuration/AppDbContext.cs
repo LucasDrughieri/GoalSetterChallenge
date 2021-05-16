@@ -30,6 +30,10 @@ namespace Core.Configuration
             SeedData(builder);
         }
 
+        /// <summary>
+        /// Seed initial data in database
+        /// </summary>
+        /// <param name="builder"></param>
         private void SeedData(ModelBuilder builder)
         {
             var clients = new[]

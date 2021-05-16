@@ -10,20 +10,20 @@ namespace Web.Middlewares
 {
     public class ErrorHandlerMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorHandlerMiddleware> _logger;
+        private readonly RequestDelegate next;
+        private readonly ILogger<ErrorHandlerMiddleware> logger;
 
         public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
         {
-            _next = next;
-            _logger = logger;
+            this.next = next;
+            this.logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
         {
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (Exception error)
             {
@@ -35,7 +35,7 @@ namespace Web.Middlewares
                     case AppException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        _logger.LogError($"Error not handled: {e.StackTrace}");
+                        logger.LogError($"Error not handled: {e.StackTrace}");
                         break;
                     default:
                         // unhandled error

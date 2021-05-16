@@ -12,36 +12,42 @@ namespace Web.Controllers
     [Route("api/[controller]")]
     public class ClientController : ControllerBase
     {
-        private readonly IClientService _clientService;
-        private readonly ILogger<ClientController> _logger;
+        private readonly IClientService clientService;
+        private readonly ILogger<ClientController> logger;
 
         public ClientController(IClientService clientService, ILogger<ClientController> logger)
         {
-            _clientService = clientService;
-            _logger = logger;
+            this.clientService = clientService;
+            this.logger = logger;
         }
 
+        /// <summary>
+        /// Endpoint to create a new client
+        /// </summary>
         [HttpPost]
         [ValidateBodyActionFilter]
         [ProducesResponseType(typeof(Response), 200)]
         [ProducesResponseType(typeof(Response), 400)]
         public IActionResult Post([FromBody]ClientRequestModel request)
         {
-            _logger.LogInformation($"POST /api/client reach with body: {request}");
+            logger.LogInformation($"POST /api/client reach with body: {request}");
 
-            var response = _clientService.Add(request);
+            var response = clientService.Add(request);
 
             return response.CreateResponse(this);
         }
 
+        /// <summary>
+        /// Endpoint to delete a client by id
+        /// </summary>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Response), 200)]
         [ProducesResponseType(typeof(Response), 400)]
         public IActionResult Delete(int id)
         {
-            _logger.LogInformation($"DELETE /api/client/{id} reach");
+            logger.LogInformation($"DELETE /api/client/{id} reach");
 
-            var response = _clientService.Delete(id);
+            var response = clientService.Delete(id);
 
             return response.CreateResponse(this);
         }

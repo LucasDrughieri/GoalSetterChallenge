@@ -5,28 +5,28 @@ namespace Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly AppDbContext _appDbContext;
-        private readonly IClientRepository _clientRepository;
-        private readonly IVehicleRepository _vehicleRepository;
-        private readonly IRentalRepository _rentalRepository;
+        private readonly AppDbContext appDbContext;
+        private readonly IClientRepository clientRepository;
+        private readonly IVehicleRepository vehicleRepository;
+        private readonly IRentalRepository rentalRepository;
 
         public UnitOfWork(AppDbContext context, IClientRepository clientRepository, IVehicleRepository vehicleRepository, IRentalRepository rentalRepository)
         {
-            _appDbContext = context;
-            _clientRepository = clientRepository;
-            _vehicleRepository = vehicleRepository;
-            _rentalRepository = rentalRepository;
+            appDbContext = context;
+            this.clientRepository = clientRepository;
+            this.vehicleRepository = vehicleRepository;
+            this.rentalRepository = rentalRepository;
         }
 
-        public IClientRepository ClientRepository => _clientRepository;
+        public IClientRepository ClientRepository => clientRepository;
 
-        public IVehicleRepository VehicleRepository => _vehicleRepository;
+        public IVehicleRepository VehicleRepository => vehicleRepository;
 
-        public IRentalRepository RentalRepository => _rentalRepository;
+        public IRentalRepository RentalRepository => rentalRepository;
 
         public void Save()
         {
-            _appDbContext.SaveChanges();
+            appDbContext.SaveChanges();
         }
     }
 }

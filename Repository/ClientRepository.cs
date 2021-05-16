@@ -7,32 +7,32 @@ namespace Repository
 {
     public class ClientRepository : IClientRepository
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext appDbContext;
 
         public ClientRepository(AppDbContext appDbContext)
         {
-            _appDbContext = appDbContext;
+            this.appDbContext = appDbContext;
         }
 
         public void Add(Client client)
         {
-            _appDbContext.Clients.Add(client);
+            appDbContext.Clients.Add(client);
         }
 
         public void Delete(Client entity)
         {
             if (entity is not ILogicalDelete)
-                _appDbContext.Clients.Remove(entity);
+                appDbContext.Clients.Remove(entity);
             else
             {
                 entity.Active = false;
-                _appDbContext.Clients.Update(entity);
+                appDbContext.Clients.Update(entity);
             }
         }
 
         public Client Find(int id)
         {
-            return _appDbContext.Clients.Find(id);
+            return appDbContext.Clients.Find(id);
         }
     }
 }

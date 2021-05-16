@@ -9,44 +9,47 @@ using System;
 
 namespace Service
 {
+    /// <summary>
+    /// Service to handle the business logic for create and delete a client
+    /// </summary>
     public class ClientService : IClientService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<ClientService> _logger;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<ClientService> logger;
 
         public ClientService(IUnitOfWork unitOfWork, ILogger<ClientService> logger)
         {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
+            this.unitOfWork = unitOfWork;
+            this.logger = logger;
         }
 
         public Response Add(ClientRequestModel request)
         {
             var response = new Response();
 
-            _logger.LogInformation("Starting request validation");
+            logger.LogInformation("Starting request validation");
 
             if (string.IsNullOrWhiteSpace(request.Name)) response.AddError(Constants.NAME_EMPTY, "The field name is required");
             if (string.IsNullOrWhiteSpace(request.Phone)) response.AddError(Constants.PHONE_EMPTY, "The field phone is required");
 
             if (response.HasErrors()) return response;
 
-            _logger.LogInformation("Request validated success");
+            logger.LogInformation("Request validated success");
 
             try
             {
                 var domain = new Client { Name = request.Name, Phone = request.Phone, Active = true };
 
-                _logger.LogInformation("Calling client repository to save new client");
+                logger.LogInformation("Calling client repository to save new client");
 
-                _unitOfWork.ClientRepository.Add(domain);
-                _unitOfWork.Save();
+                unitOfWork.ClientRepository.Add(domain);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.CLIENT_SAVED, "Client added succesfully");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;
@@ -56,9 +59,9 @@ namespace Service
         {
             var response = new Response();
 
-            _logger.LogInformation($"Calling client repository to find client with id {id}");
+            logger.LogInformation($"Calling client repository to find client with id {id}");
 
-            var entity = _unitOfWork.ClientRepository.Find(id);
+            var entity = unitOfWork.ClientRepository.Find(id);
 
             if (entity == null)
             {
@@ -68,16 +71,16 @@ namespace Service
 
             try
             {
-                _logger.LogInformation("Calling client repository to delete client");
+                logger.LogInformation("Calling client repository to delete client");
 
-                _unitOfWork.ClientRepository.Delete(entity);
-                _unitOfWork.Save();
+                unitOfWork.ClientRepository.Delete(entity);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.CLIENT_DELETED, "Client removed succesfully");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;

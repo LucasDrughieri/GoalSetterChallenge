@@ -3,6 +3,9 @@ using Core.Interfaces.Repository;
 
 namespace Repository
 {
+    /// <summary>
+    /// Configuration of dependency injection for repository project
+    /// </summary>
     public class RepositoryModule : Module
     {
         protected override void Load(ContainerBuilder builder)

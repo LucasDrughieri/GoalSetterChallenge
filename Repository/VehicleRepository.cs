@@ -7,32 +7,32 @@ namespace Repository
 {
     public class VehicleRepository : IVehicleRepository
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext appDbContext;
 
         public VehicleRepository(AppDbContext appDbContext)
         {
-            _appDbContext = appDbContext;
+            this.appDbContext = appDbContext;
         }
 
         public void Add(Vehicle vehicle)
         {
-            _appDbContext.Vehicles.Add(vehicle);
+            appDbContext.Vehicles.Add(vehicle);
         }
 
         public void Delete(Vehicle entity)
         {
             if (entity is not ILogicalDelete)
-                _appDbContext.Vehicles.Remove(entity);
+                appDbContext.Vehicles.Remove(entity);
             else
             {
                 entity.Active = false;
-                _appDbContext.Vehicles.Update(entity);
+                appDbContext.Vehicles.Update(entity);
             }
         }
 
         public Vehicle Find(int id)
         {
-            return _appDbContext.Vehicles.Find(id);
+            return appDbContext.Vehicles.Find(id);
         }
     }
 }

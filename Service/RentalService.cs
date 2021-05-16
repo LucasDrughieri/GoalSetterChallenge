@@ -10,15 +10,18 @@ using System;
 
 namespace Service
 {
+    /// <summary>
+    /// Service to handle the business logic for create and cancel a rental
+    /// </summary>
     public class RentalService : IRentalService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<RentalService> _logger;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<RentalService> logger;
 
         public RentalService(IUnitOfWork unitOfWork, ILogger<RentalService> logger)
         {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
+            this.unitOfWork = unitOfWork;
+            this.logger = logger;
         }
 
         public Response Add(CreateRentalRequestModel request)
@@ -27,7 +30,7 @@ namespace Service
 
             try
             {
-                _logger.LogInformation("Starting request validation");
+                logger.LogInformation("Starting request validation");
 
                 DateUtils.ValidateRangeDates(response, request.StartDate, request.EndDate);
 
@@ -37,11 +40,11 @@ namespace Service
 
                 if (response.HasErrors()) return response;
 
-                _logger.LogInformation("Request validated success");
+                logger.LogInformation("Request validated success");
 
-                _logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
+                logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
 
-                var isVehicleAvailable = _unitOfWork.RentalRepository.VerifyIfVehicleIsAvailableByRangeDates(request.VehicleId.Value, request.StartDate.Value, request.EndDate.Value);
+                var isVehicleAvailable = unitOfWork.RentalRepository.VerifyIfVehicleIsAvailableByRangeDates(request.VehicleId.Value, request.StartDate.Value, request.EndDate.Value);
 
                 if (!isVehicleAvailable)
                 {
@@ -61,16 +64,16 @@ namespace Service
                     Status = RentalStatus.Reserved
                 };
 
-                _logger.LogInformation("Calling rental repository to save new rental");
+                logger.LogInformation("Calling rental repository to save new rental");
 
-                _unitOfWork.RentalRepository.Add(rental);
-                _unitOfWork.Save();
+                unitOfWork.RentalRepository.Add(rental);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.RENTAL_SAVED, "A vehicle was reserved succesfully");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;
@@ -80,9 +83,9 @@ namespace Service
         {
             var response = new Response();
 
-            _logger.LogInformation($"Calling rental repository to find rental with id {id}");
+            logger.LogInformation($"Calling rental repository to find rental with id {id}");
 
-            var entity = _unitOfWork.RentalRepository.Find(id);
+            var entity = unitOfWork.RentalRepository.Find(id);
 
             if(entity == null)
             {
@@ -94,16 +97,16 @@ namespace Service
             {
                 entity.Status = RentalStatus.Cancelled;
 
-                _logger.LogInformation("Calling rental repository to cancel rental with id {id}");
+                logger.LogInformation("Calling rental repository to cancel rental with id {id}");
 
-                _unitOfWork.RentalRepository.Update(entity);
-                _unitOfWork.Save();
+                unitOfWork.RentalRepository.Update(entity);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.RENTAL_CANCELLED, "The rental car was succesfully cancelled");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;
@@ -117,7 +120,7 @@ namespace Service
             }
             else
             {
-                var client = _unitOfWork.ClientRepository.Find(request.ClientId.Value);
+                var client = unitOfWork.ClientRepository.Find(request.ClientId.Value);
 
                 if (client == null || !client.Active) response.AddError(Constants.CLIENT_NOT_FOUND, "Client not found");
             }
@@ -132,7 +135,7 @@ namespace Service
             }
             else
             {
-                var vehicle = _unitOfWork.VehicleRepository.Find(request.VehicleId.Value);
+                var vehicle = unitOfWork.VehicleRepository.Find(request.VehicleId.Value);
 
                 if (vehicle == null || !vehicle.Active) response.AddError(Constants.VEHICLE_NOT_FOUND, "Vehicle not found");
 

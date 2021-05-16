@@ -4,6 +4,9 @@ using Repository;
 
 namespace Service
 {
+    /// <summary>
+    /// Configuration of dependency injection for service project
+    /// </summary>
     public class ServiceModule : Module
     {
         public ServiceModule(ContainerBuilder containerBuilder)

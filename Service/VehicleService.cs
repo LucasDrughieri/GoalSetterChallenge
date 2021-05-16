@@ -13,24 +13,27 @@ using System.Linq;
 
 namespace Service
 {
+    /// <summary>
+    /// Service to handle the business logic for create, delete a vehicle and get all vehicle availables by range dates
+    /// </summary>
     public class VehicleService : IVehicleService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<VehicleService> _logger;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly ILogger<VehicleService> logger;
 
         public VehicleService(IUnitOfWork unitOfWork, ILogger<VehicleService> logger)
         {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
+            this.unitOfWork = unitOfWork;
+            this.logger = logger;
         }
 
         public Response Delete(int id)
         {
             var response = new Response();
 
-            _logger.LogInformation($"Calling vehicle repository to find vehicle with id {id}");
+            logger.LogInformation($"Calling vehicle repository to find vehicle with id {id}");
 
-            var entity = _unitOfWork.VehicleRepository.Find(id);
+            var entity = unitOfWork.VehicleRepository.Find(id);
 
             if(entity == null)
             {
@@ -40,14 +43,14 @@ namespace Service
 
             try
             {
-                _unitOfWork.VehicleRepository.Delete(entity);
-                _unitOfWork.Save();
+                unitOfWork.VehicleRepository.Delete(entity);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.VEHICLE_DELETED, "Vehicle removed succesfully");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;
@@ -57,29 +60,29 @@ namespace Service
         {
             var response = new Response();
 
-            _logger.LogInformation("Starting request validation");
+            logger.LogInformation("Starting request validation");
 
             if (string.IsNullOrWhiteSpace(request.Brand)) response.AddError(Constants.BRAND_EMPTY, "The field brand is required");
             if(!request.PricePerDay.HasValue || request.PricePerDay <= 0) response.AddError(Constants.PRICE_PER_DAY_INVALID, "The field pricePerDay is required");
 
             if (response.HasErrors()) return response;
 
-            _logger.LogInformation("Request validated success");
+            logger.LogInformation("Request validated success");
 
             try
             {
                 var domain = new Vehicle { Brand = request.Brand, Year = request.Year, PricePerDay = request.PricePerDay.Value, Active = true };
 
-                _logger.LogInformation("Calling vehicle repository to save new vehicle");
+                logger.LogInformation("Calling vehicle repository to save new vehicle");
 
-                _unitOfWork.VehicleRepository.Add(domain);
-                _unitOfWork.Save();
+                unitOfWork.VehicleRepository.Add(domain);
+                unitOfWork.Save();
 
                 response.AddSuccess(Constants.VEHICLE_SAVED, "Vehicle added succesfully");
             }
             catch (Exception e)
             {
-                ExceptionUtils.HandleGeneralError(response, _logger, e);
+                ExceptionUtils.HandleGeneralError(response, logger, e);
             }
 
             return response;
@@ -89,21 +92,28 @@ namespace Service
         {
             var response = new Response<IList<VehicleAvailableResponseModel>>();
 
-            _logger.LogInformation("Starting request validation");
+            logger.LogInformation("Starting request validation");
 
             DateUtils.ValidateRangeDates(response, request.StartDate, request.EndDate);
 
             if (response.HasErrors()) return response;
 
-            _logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
+            try
+            {
+                logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
 
-            var vehicleAvailables = _unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
+                var vehicleAvailables = unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
 
-            _logger.LogInformation($"{vehicleAvailables.Count()} vehicles founds");
+                logger.LogInformation($"{vehicleAvailables.Count()} vehicles founds");
 
-            response.Data = vehicleAvailables.Select(x => new VehicleAvailableResponseModel { Id = x.Id, Brand = x.Brand, PricePerDay = x.PricePerDay, Year = x.Year }).ToList();
+                response.Data = vehicleAvailables.Select(x => new VehicleAvailableResponseModel { Id = x.Id, Brand = x.Brand, PricePerDay = x.PricePerDay, Year = x.Year }).ToList();
 
-            if (!response.Data.Any()) response.AddWarning(Constants.NO_VEHICLE_AVAILABLES, "No vehicles availables for selected dates");
+                if (!response.Data.Any()) response.AddWarning(Constants.NO_VEHICLE_AVAILABLES, "No vehicles availables for selected dates");
+            }
+            catch (Exception e)
+            {
+                ExceptionUtils.HandleGeneralError(response, logger, e);
+            }
 
             return response;
         }
