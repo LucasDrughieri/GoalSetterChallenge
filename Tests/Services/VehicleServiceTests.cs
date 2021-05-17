@@ -17,7 +17,7 @@ namespace Tests.Services
 {
     public class VehicleServiceTests
     {
-        private Mock<IRepository> unitOfWorkMock;
+        private Mock<IRepository> repositoryMock;
         private Mock<ILogger<VehicleService>> loggerMock;
         private Mock<IVehicleRepository> vehicleRepositoryMock;
         private Mock<IRentalRepository> rentalRepositoryMock;
@@ -27,15 +27,15 @@ namespace Tests.Services
         [SetUp]
         public void Setup()
         {
-            unitOfWorkMock = new Mock<IRepository>();
+            repositoryMock = new Mock<IRepository>();
             loggerMock = new Mock<ILogger<VehicleService>>();
             vehicleRepositoryMock = new Mock<IVehicleRepository>();
             rentalRepositoryMock = new Mock<IRentalRepository>();
 
-            unitOfWorkMock.Setup(x => x.VehicleRepository).Returns(vehicleRepositoryMock.Object);
-            unitOfWorkMock.Setup(x => x.RentalRepository).Returns(rentalRepositoryMock.Object);
+            repositoryMock.Setup(x => x.VehicleRepository).Returns(vehicleRepositoryMock.Object);
+            repositoryMock.Setup(x => x.RentalRepository).Returns(rentalRepositoryMock.Object);
 
-            vehicleService = new VehicleService(unitOfWorkMock.Object, loggerMock.Object);
+            vehicleService = new VehicleService(repositoryMock.Object, loggerMock.Object);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Tests.Services
             var response = vehicleService.Add(vehicleRequestModel);
 
             vehicleRepositoryMock.Verify(x => x.Add(It.IsAny<Vehicle>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
             Assert.False(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.VEHICLE_SAVED), 1);
         }
@@ -68,14 +68,14 @@ namespace Tests.Services
         [Test]
         public void ShouldNotSave()
         {
-            unitOfWorkMock.Setup(x => x.Save()).Throws(new Exception());
+            repositoryMock.Setup(x => x.Save()).Throws(new Exception());
 
             var vehicleRequestModel = new VehicleRequestModel { Brand = "brand", PricePerDay = 10, Year = 2021 };
 
             var response = vehicleService.Add(vehicleRequestModel);
 
             vehicleRepositoryMock.Verify(x => x.Add(It.IsAny<Vehicle>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
 
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);
@@ -90,7 +90,7 @@ namespace Tests.Services
             var response = vehicleService.Delete(1);
 
             vehicleRepositoryMock.Verify(x => x.Delete(It.IsAny<Vehicle>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
             Assert.False(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.VEHICLE_DELETED), 1);
         }
@@ -103,7 +103,7 @@ namespace Tests.Services
             var response = vehicleService.Delete(1);
 
             vehicleRepositoryMock.Verify(x => x.Delete(It.IsAny<Vehicle>()), Times.Never);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Never);
+            repositoryMock.Verify(x => x.Save(), Times.Never);
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.VEHICLE_NOT_FOUND), 1);
@@ -113,12 +113,12 @@ namespace Tests.Services
         public void ShouldNotDelete()
         {
             vehicleRepositoryMock.Setup(x => x.Find(It.IsAny<int>())).Returns(new Vehicle { Id = 1 });
-            unitOfWorkMock.Setup(x => x.Save()).Throws(new Exception());
+            repositoryMock.Setup(x => x.Save()).Throws(new Exception());
 
             var response = vehicleService.Delete(1);
 
             vehicleRepositoryMock.Verify(x => x.Delete(It.IsAny<Vehicle>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
 
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);

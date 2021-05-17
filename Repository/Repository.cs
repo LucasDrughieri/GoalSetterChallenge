@@ -3,6 +3,9 @@ using Core.Interfaces.Repository;
 
 namespace Repository
 {
+    /// <summary>
+    /// Class to handle all repositories
+    /// </summary>
     public class Repository : IRepository
     {
         private readonly AppDbContext appDbContext;

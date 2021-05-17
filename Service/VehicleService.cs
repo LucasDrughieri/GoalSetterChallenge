@@ -1,5 +1,4 @@
-﻿using Core.Configuration;
-using Core.Domain;
+﻿using Core.Domain;
 using Core.Interfaces.Repository;
 using Core.Interfaces.Services;
 using Core.Models;
@@ -18,12 +17,12 @@ namespace Service
     /// </summary>
     public class VehicleService : IVehicleService
     {
-        private readonly IRepository unitOfWork;
+        private readonly IRepository repository;
         private readonly ILogger<VehicleService> logger;
 
-        public VehicleService(IRepository unitOfWork, ILogger<VehicleService> logger)
+        public VehicleService(IRepository repository, ILogger<VehicleService> logger)
         {
-            this.unitOfWork = unitOfWork;
+            this.repository = repository;
             this.logger = logger;
         }
 
@@ -37,7 +36,7 @@ namespace Service
 
             logger.LogInformation($"Calling vehicle repository to find vehicle with id {id}");
 
-            var entity = unitOfWork.VehicleRepository.Find(id);
+            var entity = repository.VehicleRepository.Find(id);
 
             if(entity == null)
             {
@@ -47,8 +46,8 @@ namespace Service
 
             try
             {
-                unitOfWork.VehicleRepository.Delete(entity);
-                unitOfWork.Save();
+                repository.VehicleRepository.Delete(entity);
+                repository.Save();
 
                 response.AddSuccess(Constants.VEHICLE_DELETED, "Vehicle removed succesfully");
             }
@@ -83,8 +82,8 @@ namespace Service
 
                 logger.LogInformation("Calling vehicle repository to save new vehicle");
 
-                unitOfWork.VehicleRepository.Add(domain);
-                unitOfWork.Save();
+                repository.VehicleRepository.Add(domain);
+                repository.Save();
 
                 response.AddSuccess(Constants.VEHICLE_SAVED, "Vehicle added succesfully");
             }
@@ -114,7 +113,7 @@ namespace Service
             {
                 logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
 
-                var vehicleAvailables = unitOfWork.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
+                var vehicleAvailables = repository.RentalRepository.GetVehiclesAvailables(request.StartDate.Value, request.EndDate.Value);
 
                 logger.LogInformation($"{vehicleAvailables.Count()} vehicles founds");
 

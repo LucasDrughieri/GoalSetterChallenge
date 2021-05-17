@@ -14,12 +14,12 @@ namespace Service
     /// </summary>
     public class ClientService : IClientService
     {
-        private readonly IRepository unitOfWork;
+        private readonly IRepository repository;
         private readonly ILogger<ClientService> logger;
 
-        public ClientService(IRepository unitOfWork, ILogger<ClientService> logger)
+        public ClientService(IRepository repository, ILogger<ClientService> logger)
         {
-            this.unitOfWork = unitOfWork;
+            this.repository = repository;
             this.logger = logger;
         }
 
@@ -46,8 +46,8 @@ namespace Service
 
                 logger.LogInformation("Calling client repository to save new client");
 
-                unitOfWork.ClientRepository.Add(domain);
-                unitOfWork.Save();
+                repository.ClientRepository.Add(domain);
+                repository.Save();
 
                 response.AddSuccess(Constants.CLIENT_SAVED, "Client added succesfully");
             }
@@ -69,7 +69,7 @@ namespace Service
 
             logger.LogInformation($"Calling client repository to find client with id {id}");
 
-            var entity = unitOfWork.ClientRepository.Find(id);
+            var entity = repository.ClientRepository.Find(id);
 
             if (entity == null)
             {
@@ -81,8 +81,8 @@ namespace Service
             {
                 logger.LogInformation("Calling client repository to delete client");
 
-                unitOfWork.ClientRepository.Delete(entity);
-                unitOfWork.Save();
+                repository.ClientRepository.Delete(entity);
+                repository.Save();
 
                 response.AddSuccess(Constants.CLIENT_DELETED, "Client removed succesfully");
             }

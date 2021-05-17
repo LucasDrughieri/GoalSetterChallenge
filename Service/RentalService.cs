@@ -15,12 +15,12 @@ namespace Service
     /// </summary>
     public class RentalService : IRentalService
     {
-        private readonly IRepository unitOfWork;
+        private readonly IRepository repository;
         private readonly ILogger<RentalService> logger;
 
-        public RentalService(IRepository unitOfWork, ILogger<RentalService> logger)
+        public RentalService(IRepository repository, ILogger<RentalService> logger)
         {
-            this.unitOfWork = unitOfWork;
+            this.repository = repository;
             this.logger = logger;
         }
 
@@ -48,7 +48,7 @@ namespace Service
 
                 logger.LogInformation("Calling rental repository to find availables vehicles by range dates");
 
-                var isVehicleAvailable = unitOfWork.RentalRepository.VerifyIfVehicleIsAvailableByRangeDates(request.VehicleId.Value, request.StartDate.Value, request.EndDate.Value);
+                var isVehicleAvailable = repository.RentalRepository.VerifyIfVehicleIsAvailableByRangeDates(request.VehicleId.Value, request.StartDate.Value, request.EndDate.Value);
 
                 if (!isVehicleAvailable)
                 {
@@ -56,7 +56,7 @@ namespace Service
                     return response;
                 }
 
-                var totalDays = request.EndDate.Value.Subtract(request.StartDate.Value).TotalDays;
+                var totalDays = request.EndDate.Value.Subtract(request.StartDate.Value).TotalDays + 1;
 
                 var rental = new Rental
                 {
@@ -70,8 +70,8 @@ namespace Service
 
                 logger.LogInformation("Calling rental repository to save new rental");
 
-                unitOfWork.RentalRepository.Add(rental);
-                unitOfWork.Save();
+                repository.RentalRepository.Add(rental);
+                repository.Save();
 
                 response.AddSuccess(Constants.RENTAL_SAVED, "A vehicle was reserved succesfully");
             }
@@ -94,7 +94,7 @@ namespace Service
 
             logger.LogInformation($"Calling rental repository to find rental with id {id}");
 
-            var entity = unitOfWork.RentalRepository.Find(id);
+            var entity = repository.RentalRepository.Find(id);
 
             if(entity == null)
             {
@@ -108,8 +108,8 @@ namespace Service
 
                 logger.LogInformation("Calling rental repository to cancel rental with id {id}");
 
-                unitOfWork.RentalRepository.Update(entity);
-                unitOfWork.Save();
+                repository.RentalRepository.Update(entity);
+                repository.Save();
 
                 response.AddSuccess(Constants.RENTAL_CANCELLED, "The rental car was succesfully cancelled");
             }
@@ -134,7 +134,7 @@ namespace Service
             }
             else
             {
-                var client = unitOfWork.ClientRepository.Find(request.ClientId.Value);
+                var client = repository.ClientRepository.Find(request.ClientId.Value);
 
                 if (client == null || !client.Active) response.AddError(Constants.CLIENT_NOT_FOUND, "Client not found");
             }
@@ -154,7 +154,7 @@ namespace Service
             }
             else
             {
-                var vehicle = unitOfWork.VehicleRepository.Find(request.VehicleId.Value);
+                var vehicle = repository.VehicleRepository.Find(request.VehicleId.Value);
 
                 if (vehicle == null || !vehicle.Active) response.AddError(Constants.VEHICLE_NOT_FOUND, "Vehicle not found");
 

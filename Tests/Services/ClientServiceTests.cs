@@ -14,7 +14,7 @@ namespace Tests.Services
 {
     public class Tests
     {
-        private Mock<IRepository> unitOfWorkMock;
+        private Mock<IRepository> repositoryMock;
         private Mock<ILogger<ClientService>> loggerMock;
         private Mock<IClientRepository> clientRepositoryMock;
 
@@ -23,13 +23,13 @@ namespace Tests.Services
         [SetUp]
         public void Setup()
         {
-            unitOfWorkMock = new Mock<IRepository>();
+            repositoryMock = new Mock<IRepository>();
             loggerMock = new Mock<ILogger<ClientService>>();
             clientRepositoryMock = new Mock<IClientRepository>();
 
-            unitOfWorkMock.Setup(x => x.ClientRepository).Returns(clientRepositoryMock.Object);
+            repositoryMock.Setup(x => x.ClientRepository).Returns(clientRepositoryMock.Object);
 
-            clientService = new ClientService(unitOfWorkMock.Object, loggerMock.Object);
+            clientService = new ClientService(repositoryMock.Object, loggerMock.Object);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Tests.Services
             var response = clientService.Add(clientRequestModel);
 
             clientRepositoryMock.Verify(x => x.Add(It.IsAny<Client>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
             Assert.False(response.HasErrors());
 
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.CLIENT_SAVED), 1);
@@ -63,14 +63,14 @@ namespace Tests.Services
         [Test]
         public void ShouldNotSave()
         {
-            unitOfWorkMock.Setup(x => x.Save()).Throws(new Exception());
+            repositoryMock.Setup(x => x.Save()).Throws(new Exception());
 
             var clientRequestModel = new ClientRequestModel { Name = "name", Phone = "123" };
 
             var response = clientService.Add(clientRequestModel);
 
             clientRepositoryMock.Verify(x => x.Add(It.IsAny<Client>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
 
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);
@@ -85,7 +85,7 @@ namespace Tests.Services
             var response = clientService.Delete(1);
 
             clientRepositoryMock.Verify(x => x.Delete(It.IsAny<Client>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
             Assert.False(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.CLIENT_DELETED), 1);
         }
@@ -98,7 +98,7 @@ namespace Tests.Services
             var response = clientService.Delete(1);
 
             clientRepositoryMock.Verify(x => x.Delete(It.IsAny<Client>()), Times.Never);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Never);
+            repositoryMock.Verify(x => x.Save(), Times.Never);
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);
             Assert.AreEqual(response.Messages.Count(x => x.Code == Constants.CLIENT_NOT_FOUND), 1);
@@ -108,12 +108,12 @@ namespace Tests.Services
         public void ShouldNotDelete()
         {
             clientRepositoryMock.Setup(x => x.Find(It.IsAny<int>())).Returns(new Client { Id = 1 });
-            unitOfWorkMock.Setup(x => x.Save()).Throws(new Exception());
+            repositoryMock.Setup(x => x.Save()).Throws(new Exception());
 
             var response = clientService.Delete(1);
 
             clientRepositoryMock.Verify(x => x.Delete(It.IsAny<Client>()), Times.Once);
-            unitOfWorkMock.Verify(x => x.Save(), Times.Once);
+            repositoryMock.Verify(x => x.Save(), Times.Once);
 
             Assert.True(response.HasErrors());
             Assert.AreEqual(response.Messages.Count(x => x.Type == MessageType.Error), 1);

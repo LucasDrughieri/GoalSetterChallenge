@@ -32,12 +32,6 @@ namespace Core.Models
             return Messages.Any(x => x.Type == MessageType.Error);
         }
 
-        public void AddMessages(IList<Message> list)
-        {
-            foreach (var message in list)
-                Messages.Add(message);
-        }
-
         public void AddError(string code, string message)
         {
             Messages.Add(new Message(code, message, MessageType.Error));
